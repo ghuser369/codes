@@ -1,0 +1,73 @@
+`timescale 1ns/1ps
+module alu_32bit(
+input[31:0] A ,
+input[31:0] B ,
+input[31:0] alu_sel ,
+output reg [31:0] alu_out ,
+output zero
+);
+
+assign zero = (alu_out == 32'b0);
+
+always @(*) begin
+case(alu_sel)
+
+4'b0000 : alu_out = A+B ;//add
+4'b0001 : alu_out = A-B ;//sub
+4'b0010 : alu_out = A&B ;//and
+4'b0011 : alu_out = A|B ;//or
+4'b0100 : alu_out = A^B ;//xor
+4'b0101 : alu_out = ~A ;//not
+4'b0110 : alu_out = A<<1 ;//left shift
+4'b0111 : alu_out = A>>1 ;// right shift
+4'b1000 : alu_out = (A<B) ? 32'd1 : 32'd8;  //less than
+4'b1001 : alu_out = A*B ;
+4'b1010 : alu_out = A/B ;
+4'b1011 : alu_out = A**B;
+
+default : alu_out=32'b0;
+
+endcase
+end
+
+endmodule
+
+
+
+
+`timescale 1ns/1ps
+module tb_32bit_alu;
+reg[31:0] A;
+reg[31:0] B;
+reg[3:0] alu_sel;
+wire[31:0] alu_out;
+wire zero;
+
+alu_32bit dut(
+  .A(A),
+  .B(B),
+  .alu_sel(alu_sel),
+  .alu_out(alu_out),
+  .zero(zero)
+);
+
+initial begin
+$display("starting alu_test.....");
+A=32'd10;
+B=32'd2;
+alu_sel=4'b0000;#10;
+alu_sel=4'b0001;#10;
+alu_sel=4'b0010;#10;
+alu_sel=4'b0011;#10;
+alu_sel=4'b0100;#10;
+alu_sel=4'b0101;#10;
+alu_sel=4'b0110;#10;
+alu_sel=4'b0111;#10;
+alu_sel=4'b1000;#10;
+alu_sel=4'b1001;#10;
+alu_sel=4'b1010;#10;
+alu_sel=4'b1011;#10;
+
+$stop;
+end
+endmodule
