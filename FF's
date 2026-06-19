@@ -1,0 +1,125 @@
+module RisingEdge_DFlipFlop_SyncReset(D,clk,sync_reset,Q);
+input D;
+input clk;
+input sync_reset;
+output reg Q;
+always @(posedge clk)
+begin
+if(sync_reset==1'b1)
+  Q <= 1'b0;
+else
+  Q <= D;
+end
+endmodule
+
+
+module tb_d_flipflop();
+reg D;
+reg clk;
+reg reset;
+wire Q;
+RisingEdge_DFlipFlop_SyncReset dut(D,clk,reset,Q);
+initial begin
+ clk=0;
+ forever#10 clk=~clk;
+end
+initial begin
+ reset=1;
+ D<=0;
+ #100;
+ reset=0;
+ D<=1;
+ #100;
+ D<=0;
+ #100
+ D<=1;
+end
+endmodule
+
+
+
+
+module jk_flipflop(
+input reset,
+input clk,
+input j,
+input k,
+output reg q,
+output qnot
+);
+assign qnot=~q;
+always @(posedge clk)
+if(reset) q<=1'b0;
+else
+case({j,k})
+2'b00:q<=q;
+2'b01:q<=1'b0;
+2'b10:q<=1'b1;
+2'b11:q<=~q;
+endcase
+endmodule
+
+
+module tb_jk_flipflop;
+reg clk=0;
+reg j=0;
+reg k=0;
+reg reset=0;
+wire q,qnot;
+jk_flipflop dut(reset,clk,j,k,q,qnot);
+initial begin
+#10 j=1'b0;k=1'b0;
+#10 j=1'b1;k=1'b0;
+#10 j=1'b0;k=1'b1;
+#10 j=1'b1;k=1'b1;
+#10 j=1'b1;k=1'b1;
+#25 reset=1'b1;
+#25 $finish;
+end
+always #1 clk=~clk;
+endmodule
+
+
+
+
+module sr_flipflop(
+output reg q,qbar,
+input s,r,clk
+);
+always @(posedge clk) begin
+if (s==1 && r==0)
+begin
+q<=1;
+qbar<=0;
+end
+else if(s==0 && r==0)
+begin
+q<=q;
+qbar<=qbar;
+end
+else if (s==1 && r==1)
+begin
+q<=1'bx;
+qbar<=1'bx;
+end
+end
+endmodule
+
+
+module tb_sr_flipflop;
+reg s,r,clk;
+wire q,qbar;
+sr_flipflop dut (.q(q),.qbar(qbar),.s(s),.r(r),.clk(clk));
+initial begin
+clk=0;
+s=0;
+r=0;
+#10 s=1;r=0;
+#10 s=0;r=0;
+#10 s=0;r=1;
+#10 s=1;r=1;
+#10 s=0;r=0;
+#50 $finish;
+end
+always #5 clk=~clk;
+endmodule
